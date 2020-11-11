@@ -1,6 +1,7 @@
 package ko.inflearnspringsecurity.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -19,6 +20,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .and()
                 .httpBasic();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication()
+                .withUser("ko").password("{noop}123").roles("USER").and()
+                .withUser("admin").password("{noop}!@#").roles("ADMIN");
 
     }
 }
