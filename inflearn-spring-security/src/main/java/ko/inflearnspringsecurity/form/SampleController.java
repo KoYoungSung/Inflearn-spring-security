@@ -70,4 +70,13 @@ public class SampleController {
             return "Async Handler";
         };
     }
+
+    @GetMapping("/async-service")
+    @ResponseBody
+    public String asyncService() {
+        SecurityLogger.Log("MVC, before async service");
+        sampleService.asyncService();
+
+        return "MVC, after async service";
+    }
 }
