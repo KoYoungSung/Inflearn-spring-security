@@ -1,5 +1,7 @@
 package ko.inflearnspringsecurity.config;
 
+import ko.inflearnspringsecurity.account.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,6 +24,9 @@ import java.io.IOException;
 @ConfigurationProperties
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    AccountService accountService;
 
     public SecurityExpressionHandler expressionHandler() {
 
@@ -51,6 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin()
                 .loginPage("/login")
                 .permitAll();
+
+        http.rememberMe().userDetailsService(accountService).key("remember-me-sample");
+
+        http.httpBasic();
 
         http.logout().logoutSuccessUrl("/");
 
