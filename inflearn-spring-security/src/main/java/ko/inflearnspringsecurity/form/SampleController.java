@@ -2,8 +2,11 @@ package ko.inflearnspringsecurity.form;
 
 import ko.inflearnspringsecurity.account.AccountContext;
 import ko.inflearnspringsecurity.account.AccountRepository;
+import ko.inflearnspringsecurity.account.UserAccount;
+import ko.inflearnspringsecurity.common.CurrentUser;
 import ko.inflearnspringsecurity.common.SecurityLogger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,11 +28,11 @@ public class SampleController {
     AccountRepository accountRepository;
 
     @GetMapping("/")
-    public String index(Model model, Principal principal) {
-        if (principal == null) {
+    public String index(Model model, @CurrentUser UserAccount userAccount) {
+        if (userAccount == null) {
             model.addAttribute("message", "Hello Spring Security");
         } else {
-            model.addAttribute("message", "Hello, " + principal.getName());
+            model.addAttribute("message", "Hello, " + userAccount.getUsername());
         }
         return "index";
     }
