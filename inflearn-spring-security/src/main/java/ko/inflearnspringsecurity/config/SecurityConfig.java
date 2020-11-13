@@ -2,6 +2,7 @@ package ko.inflearnspringsecurity.config;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,7 +10,14 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @ConfigurationProperties
 @EnableWebSecurity
@@ -39,12 +47,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/user").hasRole("USER")
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
+
         http.formLogin()
                 .loginPage("/login")
                 .permitAll();
-        http.httpBasic();
 
         http.logout().logoutSuccessUrl("/");
+
+        http.exceptionHandling()
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
+                        UserDetails principal =(UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                        String username = principal.getUsername();
+                        System.out.println(username + "is denied to access"+ httpServletRequest.getRequestURI()); //편의상
+                        httpServletResponse.sendRedirect("/access-denied");
+
+                    }
+                });
+
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
 
